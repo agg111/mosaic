@@ -1,0 +1,50 @@
+{
+  "id": "mosaic",
+  "name": "Mosaic",
+  "description": "Market intelligence agent — search internal knowledge and the web to generate strategy reports",
+  "version": "0.1.0",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "hyperspellApiKey": {
+        "type": "string",
+        "description": "Hyperspell API key for memory search"
+      },
+      "hyperspellUserId": {
+        "type": "string",
+        "description": "Your Hyperspell user ID"
+      },
+      "tavilyApiKey": {
+        "type": "string",
+        "description": "Tavily API key for web search (optional — disables web search if omitted)"
+      },
+      "anthropicApiKey": {
+        "type": "string",
+        "description": "Anthropic API key for report generation (falls back to ANTHROPIC_API_KEY env var)"
+      }
+    },
+    "required": ["hyperspellApiKey", "hyperspellUserId"]
+  },
+  "uiHints": {
+    "hyperspellApiKey": {
+      "label": "Hyperspell API Key",
+      "sensitive": true,
+      "placeholder": "hs-..."
+    },
+    "hyperspellUserId": {
+      "label": "Hyperspell User ID",
+      "placeholder": "your-username"
+    },
+    "tavilyApiKey": {
+      "label": "Tavily API Key (web search)",
+      "sensitive": true,
+      "placeholder": "tvly-..."
+    },
+    "anthropicApiKey": {
+      "label": "Anthropic API Key",
+      "sensitive": true,
+      "placeholder": "sk-ant-..."
+    }
+  }
+}

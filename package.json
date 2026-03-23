@@ -1,0 +1,30 @@
+{
+  "name": "mosaic",
+  "version": "0.1.0",
+  "description": "Market intelligence agent — distills signals from your team and the market into strategic clarity",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist",
+    "openclaw.plugin.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "keywords": ["openclaw", "plugin", "market-intelligence", "hyperspell", "ai-agent"],
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.80.0",
+    "@sinclair/typebox": "^0.34.0",
+    "hyperspell": "^0.35.0"
+  },
+  "peerDependencies": {
+    "openclaw": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  }
+}
