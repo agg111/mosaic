@@ -5,25 +5,15 @@ Mosaic is an opinionated intelligence agent that reads your team's internal stre
 ## Install
 
 ```sh
-npm install -g mosaic
+curl -fsSL https://raw.githubusercontent.com/agg111/mosaic/main/install.sh | sh
 ```
 
-Mosaic runs on [OpenClaw](https://openclaw.ai). Make sure it's installed first.
+That's it. The installer sets up everything and walks you through connecting your sources.
+
+## Start
 
 ```sh
-npm install -g openclaw
-openclaw plugin install mosaic
-```
-
-## Setup
-
-Set your API keys in `~/.openclaw/.env`:
-
-```env
-HYPERSPELL_API_KEY=hs-...          # connect your team's sources at hyperspell.com
-HYPERSPELL_USER_ID=your-username
-TAVILY_API_KEY=tvly-...            # optional — enables web search
-ANTHROPIC_API_KEY=sk-ant-...       # required for report generation
+mosaic start
 ```
 
 ## Connect your sources
@@ -39,24 +29,25 @@ Mosaic searches across all of them automatically.
 
 ## What Mosaic can do
 
-| Ask Mosaic to... | It will... |
+| Ask Mosaic... | It will... |
 |---|---|
 | Generate a market report on X | Search internal knowledge + web, synthesize, save insights |
 | What do we know about our churn? | Search across Slack, email, docs |
 | Research our competitors | Pull live web data + internal context |
 | Remember that X is happening | Save it to memory for future reports |
 
-## Usage
+## Commands
 
-Once installed, talk to your OpenClaw agent naturally:
-
-> "Generate a market report on AI coding tools"
-> "What has the team discussed about pricing?"
-> "Research the enterprise CRM space"
+```sh
+mosaic start     # Start Mosaic
+mosaic stop      # Stop Mosaic
+mosaic status    # Show connected channels
+mosaic setup     # Re-run setup wizard
+```
 
 ## Adding new capabilities
 
-Mosaic is built to grow. To add a new tool:
+To add a new tool:
 
 1. Create `src/tools/your-tool.ts`
 2. Add it to `src/tools/registry.ts`
@@ -67,5 +58,5 @@ No other changes needed.
 ## Requirements
 
 - Node.js 20+
-- [OpenClaw](https://openclaw.ai)
 - [Hyperspell](https://hyperspell.com) account
+- [Anthropic](https://console.anthropic.com) API key
