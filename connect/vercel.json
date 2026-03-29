@@ -1,5 +1,6 @@
 {
   "rewrites": [
     { "source": "/success", "destination": "/success.html" }
-  ]
+  ],
+  "public": true
 }
