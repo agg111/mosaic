@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mosaic — Connect Slack</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .card {
+      text-align: center;
+      max-width: 480px;
+      padding: 48px 32px;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .tagline {
+      color: #888;
+      font-size: 16px;
+      margin-bottom: 48px;
+      line-height: 1.5;
+    }
+    .add-to-slack {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: #4a154b;
+      color: #fff;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    .add-to-slack:hover { background: #611f64; }
+    .add-to-slack img { width: 24px; height: 24px; }
+    .note {
+      margin-top: 24px;
+      color: #555;
+      font-size: 13px;
+    }
+    .error {
+      background: #1a0a0a;
+      border: 1px solid #440;
+      color: #f88;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Mosaic</div>
+    <p class="tagline">Market intelligence for your team.<br>Connects your Notion, Slack, and the web.</p>
+
+    <div id="error-box" class="error" style="display:none"></div>
+
+    <a class="add-to-slack" href="/api/slack/install">
+      <img src="https://a.slack-edge.com/80588/marketing/img/icons/icon_slack_hash_colored.png" alt="Slack" />
+      Add to Slack
+    </a>
+
+    <p class="note">You'll be redirected to Slack to authorize Mosaic.<br>No data is stored on our servers.</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("error")) {
+      const box = document.getElementById("error-box");
+      box.textContent = "Error: " + params.get("error") + ". Please try again.";
+      box.style.display = "block";
+    }
+  </script>
+</body>
+</html>
