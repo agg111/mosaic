@@ -14,6 +14,7 @@ success() { printf "${GREEN}✓${NC} %s\n" "$1"; }
 warn()    { printf "${YELLOW}!${NC} %s\n" "$1"; }
 err()     { printf "${RED}✗${NC} %s\n" "$1"; exit 1; }
 dim()     { printf "${DIM}%s${NC}\n" "$1"; }
+skip()    { printf "${DIM}– %s (already set up)${NC}\n" "$1"; }
 
 echo ""
 echo "  ╔════════════════════════════════════════╗"
@@ -37,68 +38,122 @@ success "Node.js $(node --version)"
 
 # ── 2. Install OpenClaw ───────────────────────────────────────────────────────
 
-print "\nInstalling OpenClaw..."
-npm install -g openclaw --silent 2>/dev/null || npm install -g openclaw --ignore-scripts --silent
-success "OpenClaw $(openclaw --version 2>/dev/null | grep -o '[0-9][0-9]*\.[0-9][0-9.]*' | head -1)"
+if command -v openclaw >/dev/null 2>&1; then
+  skip "OpenClaw"
+else
+  print "\nInstalling OpenClaw..."
+  npm install -g openclaw --silent 2>/dev/null || npm install -g openclaw --ignore-scripts --silent
+  success "OpenClaw installed"
+fi
 
 # ── 3. Install Mosaic ─────────────────────────────────────────────────────────
 
-print "\nInstalling Mosaic..."
-npm install -g mosaic --silent 2>/dev/null
-openclaw plugins install mosaic 2>/dev/null || true
-success "Mosaic installed"
+if command -v mosaic >/dev/null 2>&1 && openclaw plugins list 2>/dev/null | grep -q "mosaic"; then
+  skip "Mosaic"
+else
+  print "\nInstalling Mosaic..."
+  npm install -g getmosaic --silent 2>/dev/null || npm install -g getmosaic --ignore-scripts --silent
+  PLUGIN_PATH="$(npm root -g)/getmosaic"
+  openclaw plugins install "$PLUGIN_PATH" 2>/dev/null || true
+  success "Mosaic installed"
+fi
 
 # ── 4. API Keys ───────────────────────────────────────────────────────────────
 
-echo ""
-print "Setup"
-echo ""
-dim "  You'll need a Hyperspell account to connect your team's sources."
-dim "  Sign up free at https://hyperspell.com"
-echo ""
-
-printf "  Hyperspell API Key: "
-read -r HYPERSPELL_API_KEY
-[ -z "$HYPERSPELL_API_KEY" ] && err "Hyperspell API key is required."
-
-printf "  Hyperspell User ID: "
-read -r HYPERSPELL_USER_ID
-[ -z "$HYPERSPELL_USER_ID" ] && err "Hyperspell User ID is required."
-
-echo ""
-dim "  Anthropic API key for report generation — https://console.anthropic.com"
-echo ""
-printf "  Anthropic API Key: "
-read -r ANTHROPIC_API_KEY
-[ -z "$ANTHROPIC_API_KEY" ] && err "Anthropic API key is required."
-
-echo ""
-dim "  (Optional) Tavily for web search — https://tavily.com"
-echo ""
-printf "  Tavily API Key (enter to skip): "
-read -r TAVILY_API_KEY
-
-# ── 5. Write config ───────────────────────────────────────────────────────────
-
+ENV_FILE="$HOME/.openclaw/.env"
 mkdir -p "$HOME/.openclaw"
 
-# .env file
-ENV_FILE="$HOME/.openclaw/.env"
-cat > "$ENV_FILE" << EOF
+if [ -f "$ENV_FILE" ] && grep -q "HYPERSPELL_API_KEY" "$ENV_FILE"; then
+  skip "API keys"
+else
+  echo ""
+  print "Connect your sources"
+  echo ""
+  dim "  Hyperspell connects your Slack, Notion, Gmail, and Drive."
+  dim "  Sign up free at https://hyperspell.com, then grab your API key."
+  echo ""
+
+  printf "  Hyperspell API Key: "
+  read -r HYPERSPELL_API_KEY
+  [ -z "$HYPERSPELL_API_KEY" ] && err "Hyperspell API key is required."
+
+  printf "  Hyperspell User ID: "
+  read -r HYPERSPELL_USER_ID
+  [ -z "$HYPERSPELL_USER_ID" ] && err "Hyperspell User ID is required."
+
+  echo ""
+  dim "  Anthropic API key — https://console.anthropic.com"
+  echo ""
+  printf "  Anthropic API Key: "
+  read -r ANTHROPIC_API_KEY
+  [ -z "$ANTHROPIC_API_KEY" ] && err "Anthropic API key is required."
+
+  echo ""
+  dim "  (Optional) Tavily for web search — https://tavily.com"
+  echo ""
+  printf "  Tavily API Key (enter to skip): "
+  read -r TAVILY_API_KEY
+
+  cat > "$ENV_FILE" << EOF
 HYPERSPELL_API_KEY=$HYPERSPELL_API_KEY
 HYPERSPELL_USER_ID=$HYPERSPELL_USER_ID
 ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
 EOF
-[ -n "$TAVILY_API_KEY" ] && echo "TAVILY_API_KEY=$TAVILY_API_KEY" >> "$ENV_FILE"
+  [ -n "$TAVILY_API_KEY" ] && echo "TAVILY_API_KEY=$TAVILY_API_KEY" >> "$ENV_FILE"
+  success "API keys saved"
+fi
 
-success "Config saved to ~/.openclaw/.env"
+# ── 5. Slack ──────────────────────────────────────────────────────────────────
 
-# openclaw.json — enable Mosaic plugin with env var references
+if [ -f "$ENV_FILE" ] && grep -q "SLACK_BOT_TOKEN" "$ENV_FILE"; then
+  skip "Slack"
+else
+  echo ""
+  print "Connect Slack"
+  echo ""
+  dim "  Create a Slack app at https://api.slack.com/apps"
+  dim "  Need: Bot Token (xoxb-...) and App-Level Token (xapp-...)"
+  dim "  See setup guide: https://github.com/agg111/mosaic#slack-setup"
+  echo ""
+
+  printf "  Slack Bot Token (xoxb-...): "
+  read -r SLACK_BOT_TOKEN
+  [ -z "$SLACK_BOT_TOKEN" ] && err "Slack bot token is required."
+
+  printf "  Slack App Token (xapp-...): "
+  read -r SLACK_APP_TOKEN
+  [ -z "$SLACK_APP_TOKEN" ] && err "Slack app token is required."
+
+  cat >> "$ENV_FILE" << EOF
+SLACK_BOT_TOKEN=$SLACK_BOT_TOKEN
+SLACK_APP_TOKEN=$SLACK_APP_TOKEN
+EOF
+  success "Slack tokens saved"
+fi
+
+# ── 6. Write openclaw.json ────────────────────────────────────────────────────
+
 CONFIG_FILE="$HOME/.openclaw/openclaw.json"
-if [ ! -f "$CONFIG_FILE" ]; then
+if [ -f "$CONFIG_FILE" ]; then
+  skip "OpenClaw config"
+else
   cat > "$CONFIG_FILE" << 'EOF'
 {
+  "channels": {
+    "slack": {
+      "mode": "socket",
+      "enabled": true,
+      "botToken": "${SLACK_BOT_TOKEN}",
+      "appToken": "${SLACK_APP_TOKEN}",
+      "groupPolicy": "open",
+      "dmPolicy": "open",
+      "allowFrom": ["*"],
+      "nativeStreaming": true,
+      "streaming": "partial"
+    }
+  },
   "plugins": {
+    "allow": ["mosaic"],
     "entries": {
       "mosaic": {
         "enabled": true,
@@ -110,15 +165,18 @@ if [ ! -f "$CONFIG_FILE" ]; then
         }
       }
     }
+  },
+  "gateway": {
+    "mode": "local"
   }
 }
 EOF
-  success "OpenClaw config written to ~/.openclaw/openclaw.json"
-else
-  warn "~/.openclaw/openclaw.json already exists — add Mosaic plugin manually if needed."
+  success "OpenClaw config written"
 fi
 
-# ── 6. Done ───────────────────────────────────────────────────────────────────
+openclaw config set gateway.mode local >/dev/null 2>&1 || true
+
+# ── 7. Done ───────────────────────────────────────────────────────────────────
 
 echo ""
 echo "  ╔════════════════════════════════════════╗"
@@ -128,9 +186,11 @@ echo ""
 echo "  Next steps:"
 echo ""
 echo "  1. Connect your sources at https://hyperspell.com"
-echo "     (Slack, Gmail, Notion, Google Drive)"
+echo "     (Slack, Notion, Gmail, Google Drive)"
 echo ""
 echo "  2. Start Mosaic:"
 echo ""
 echo "     mosaic start"
+echo ""
+echo "  Then @mention Mosaic in any Slack channel."
 echo ""

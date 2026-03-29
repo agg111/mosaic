@@ -1,5 +1,5 @@
 {
-  "name": "mosaic",
+  "name": "getmosaic",
   "version": "0.1.0",
   "description": "Market intelligence agent — distills signals from your team and the market into strategic clarity",
   "main": "dist/index.js",
@@ -17,7 +17,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "prepare": "tsc"
   },
   "openclaw": {
     "extensions": ["./dist/index.js"]
