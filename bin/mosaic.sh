@@ -33,10 +33,10 @@ case "$COMMAND" in
     echo "  Welcome to Mosaic!"
     echo ""
     echo "  Step 1 — Create a Hyperspell account and generate an API key."
-    echo "  Opening https://app.hyperspell.ai/api-keys in your browser..."
+    echo "  Opening https://app.hyperspell.com/api-keys in your browser..."
     echo ""
     open "https://app.hyperspell.com/api-keys" 2>/dev/null || xdg-open "https://app.hyperspell.com/api-keys" 2>/dev/null || true
-    echo "  Once you have your API key, paste it below."
+    echo "  Sign up, create an API key, and paste it below."
     echo ""
     printf "  Hyperspell API key: "
     read -r HS_API_KEY
@@ -53,7 +53,19 @@ case "$COMMAND" in
     echo ""
     echo "  ✓ Hyperspell connected!"
     echo ""
-    echo "  Step 2 — Connect your Slack workspace."
+    echo "  Step 2 — Add your Anthropic API key (get one at console.anthropic.com)."
+    echo ""
+    printf "  Anthropic API key (sk-ant-...): "
+    read -r ANT_API_KEY
+    [ -z "$ANT_API_KEY" ] && echo "Anthropic API key cannot be empty." && exit 1
+
+    grep -v "^ANTHROPIC_API_KEY=" "$ENV_FILE" > "$ENV_FILE.tmp" && mv "$ENV_FILE.tmp" "$ENV_FILE"
+    echo "ANTHROPIC_API_KEY=$ANT_API_KEY" >> "$ENV_FILE"
+
+    echo ""
+    echo "  ✓ Anthropic connected!"
+    echo ""
+    echo "  Step 3 — Connect your Slack workspace."
     echo "  Opening https://connect-agg111s-projects.vercel.app in your browser..."
     echo ""
     open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || xdg-open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || true
