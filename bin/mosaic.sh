@@ -1,10 +1,14 @@
 #!/bin/sh
 # Mosaic CLI wrapper
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PATH="$SCRIPT_DIR:$SCRIPT_DIR/../node_modules/.bin:$PATH"
-echo "DEBUG: SCRIPT_DIR=$SCRIPT_DIR"
-echo "DEBUG: openclaw=$(command -v openclaw 2>/dev/null || echo NOT FOUND)"
+MOSAIC_LINK="$(readlink "$0" 2>/dev/null)"
+if [ -n "$MOSAIC_LINK" ]; then
+  SYMLINK_DIR="$(cd "$(dirname "$0")" && pwd)"
+  PKG_BIN="$(cd "$SYMLINK_DIR/$(dirname "$MOSAIC_LINK")" && pwd)"
+else
+  PKG_BIN="$(cd "$(dirname "$0")" && pwd)"
+fi
+PATH="$PKG_BIN:$PKG_BIN/../node_modules/.bin:$PATH"
 
 COMMAND="${1:-help}"
 
