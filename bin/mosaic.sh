@@ -48,7 +48,17 @@ case "$COMMAND" in
     echo "  Opening https://connect-agg111s-projects.vercel.app in your browser..."
     echo ""
     open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || xdg-open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || true
-    echo "  After authorizing, run the command shown on the success page, then:"
+    echo "  Authorize Mosaic in your Slack workspace, then paste the token below."
+    echo ""
+    printf "  Slack bot token (xoxb-...): "
+    read -r SLACK_TOKEN
+    [ -z "$SLACK_TOKEN" ] && echo "Slack token cannot be empty." && exit 1
+
+    grep -v "^SLACK_BOT_TOKEN=" "$ENV_FILE" > "$ENV_FILE.tmp" && mv "$ENV_FILE.tmp" "$ENV_FILE"
+    echo "SLACK_BOT_TOKEN=$SLACK_TOKEN" >> "$ENV_FILE"
+
+    echo ""
+    echo "  ✓ All set! Run:"
     echo ""
     echo "    mosaic start"
     echo ""
