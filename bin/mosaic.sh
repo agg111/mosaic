@@ -1,7 +1,8 @@
 #!/bin/sh
 # Mosaic CLI wrapper
 
-SCRIPT_DIR="$(dirname "$0")"
+SELF="$(readlink "$0" 2>/dev/null || echo "$0")"
+SCRIPT_DIR="$(cd "$(dirname "$SELF")" && pwd)"
 PATH="$SCRIPT_DIR:$PATH"
 
 COMMAND="${1:-help}"
