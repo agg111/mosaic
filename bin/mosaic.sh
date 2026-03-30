@@ -26,7 +26,7 @@ case "$COMMAND" in
     echo "  Step 1 — Create a Hyperspell account and generate an API key."
     echo "  Opening https://app.hyperspell.ai/api-keys in your browser..."
     echo ""
-    open "https://app.hyperspell.ai/api-keys" 2>/dev/null || xdg-open "https://app.hyperspell.ai/api-keys" 2>/dev/null || true
+    open "https://app.hyperspell.com/dashboard" 2>/dev/null || xdg-open "https://app.hyperspell.com/dashboard" 2>/dev/null || true
     echo "  Once you have your API key, paste it below."
     echo ""
     printf "  Hyperspell API key: "
