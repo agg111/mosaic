@@ -1,6 +1,6 @@
 {
   "name": "getmosaic",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Market intelligence agent — distills signals from your team and the market into strategic clarity",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,9 +21,17 @@
     "prepare": "tsc"
   },
   "openclaw": {
-    "extensions": ["./dist/index.js"]
+    "extensions": [
+      "./dist/index.js"
+    ]
   },
-  "keywords": ["openclaw", "plugin", "market-intelligence", "hyperspell", "ai-agent"],
+  "keywords": [
+    "openclaw",
+    "plugin",
+    "market-intelligence",
+    "hyperspell",
+    "ai-agent"
+  ],
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
     "@sinclair/typebox": "^0.34.0",
