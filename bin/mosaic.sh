@@ -1,9 +1,8 @@
 #!/bin/sh
 # Mosaic CLI wrapper
 
-SELF="$(readlink "$0" 2>/dev/null || echo "$0")"
-SCRIPT_DIR="$(cd "$(dirname "$SELF")" && pwd)"
-PATH="$SCRIPT_DIR:$PATH"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PATH="$SCRIPT_DIR/../node_modules/.bin:$PATH"
 
 COMMAND="${1:-help}"
 
