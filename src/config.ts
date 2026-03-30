@@ -3,6 +3,7 @@ export interface MosaicConfig {
   hyperspellUserId: string;
   tavilyApiKey?: string;
   anthropicApiKey?: string;
+  slackAppToken?: string;
 }
 
 let _config: MosaicConfig | null = null;
