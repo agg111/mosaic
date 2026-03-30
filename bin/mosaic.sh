@@ -2,7 +2,7 @@
 # Mosaic CLI wrapper
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PATH="$SCRIPT_DIR/../node_modules/.bin:$PATH"
+PATH="$SCRIPT_DIR:$SCRIPT_DIR/../node_modules/.bin:$PATH"
 
 COMMAND="${1:-help}"
 
