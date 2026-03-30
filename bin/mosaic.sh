@@ -1,6 +1,9 @@
 #!/bin/sh
 # Mosaic CLI wrapper
 
+SCRIPT_DIR="$(dirname "$0")"
+PATH="$SCRIPT_DIR:$PATH"
+
 COMMAND="${1:-help}"
 
 case "$COMMAND" in

@@ -65,10 +65,10 @@
     <p class="sub" id="team-name">Your workspace is ready.</p>
 
     <div class="step">
-      <div class="step-label">Step 1 — Run this command in your terminal</div>
+      <div class="step-label">Step 1 — Paste this Slack bot token into your terminal</div>
       <div class="command" id="cmd-box">
         <span id="cmd-text"></span>
-        <button class="copy-btn" onclick="copyCmd()">Copy</button>
+        <button class="copy-btn" onclick="copyToken()">Copy</button>
       </div>
     </div>
 
@@ -87,11 +87,10 @@
 
     document.getElementById("team-name").textContent = team + " is connected.";
 
-    const cmd = `mosaic set-slack-token ${token}`;
-    document.getElementById("cmd-text").textContent = cmd;
+    document.getElementById("cmd-text").textContent = token;
 
-    function copyCmd() {
-      navigator.clipboard.writeText(cmd);
+    function copyToken() {
+      navigator.clipboard.writeText(token);
       document.querySelector(".copy-btn").textContent = "Copied!";
       setTimeout(() => document.querySelector(".copy-btn").textContent = "Copy", 2000);
     }
