@@ -3,6 +3,8 @@
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PATH="$SCRIPT_DIR:$SCRIPT_DIR/../node_modules/.bin:$PATH"
+echo "DEBUG: SCRIPT_DIR=$SCRIPT_DIR"
+echo "DEBUG: openclaw=$(command -v openclaw 2>/dev/null || echo NOT FOUND)"
 
 COMMAND="${1:-help}"
 
