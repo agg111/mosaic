@@ -29,17 +29,21 @@ export default async function handler(req, res) {
 
     const botToken = data.access_token;
     const teamName = data.team?.name ?? "your workspace";
+    const appId = data.app_id ?? "";
 
     // Render the success page directly — never put the token in the URL
     res.setHeader("Content-Type", "text/html");
-    res.status(200).send(successPage(botToken, teamName));
+    res.status(200).send(successPage(botToken, teamName, appId));
   } catch (e) {
     res.redirect("/?error=server_error");
   }
 }
 
-function successPage(token, teamName) {
-  const escaped = token.replace(/`/g, "\\`");
+function successPage(token, teamName, appId) {
+  const escapedToken = token.replace(/`/g, "\\`");
+  const appTokenUrl = appId
+    ? `https://api.slack.com/apps/${appId}/general`
+    : "https://api.slack.com/apps";
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,14 +62,14 @@ function successPage(token, teamName) {
       justify-content: center;
     }
     .card {
-      max-width: 560px;
+      max-width: 580px;
       padding: 48px 32px;
       width: 100%;
     }
     .check { font-size: 40px; margin-bottom: 16px; }
     h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
     .sub { color: #888; margin-bottom: 40px; font-size: 15px; }
-    .step { margin-bottom: 28px; }
+    .step { margin-bottom: 32px; }
     .step-label {
       font-size: 12px;
       text-transform: uppercase;
@@ -73,6 +77,17 @@ function successPage(token, teamName) {
       color: #555;
       margin-bottom: 8px;
     }
+    .step-desc {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .step-desc a {
+      color: #7c9ef8;
+      text-decoration: none;
+    }
+    .step-desc a:hover { text-decoration: underline; }
     .command {
       background: #111;
       border: 1px solid #222;
@@ -97,25 +112,51 @@ function successPage(token, teamName) {
       cursor: pointer;
     }
     .copy-btn:hover { background: #333; color: #fff; }
+    .open-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1a1a2e;
+      border: 1px solid #333;
+      color: #7c9ef8;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      text-decoration: none;
+      margin-bottom: 10px;
+    }
+    .open-btn:hover { background: #222; }
     .note { color: #555; font-size: 13px; margin-top: 32px; line-height: 1.6; }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="check">✓</div>
-    <h1>Slack connected</h1>
-    <p class="sub">${teamName} is connected.</p>
+    <h1>Slack authorized</h1>
+    <p class="sub">Two quick steps and you're done.</p>
 
     <div class="step">
-      <div class="step-label">Step 1 — Paste this command into your terminal</div>
+      <div class="step-label">Step 1 — Copy your bot token into the terminal</div>
       <div class="command">
-        <span id="cmd-text">mosaic set-slack-token ${escaped}</span>
-        <button class="copy-btn" onclick="copyCmd()">Copy</button>
+        <span id="bot-token">${escapedToken}</span>
+        <button class="copy-btn" onclick="copy('bot-token', this)">Copy</button>
       </div>
     </div>
 
     <div class="step">
-      <div class="step-label">Step 2 — Start Mosaic</div>
+      <div class="step-label">Step 2 — Create an App-Level Token</div>
+      <div class="step-desc">
+        Mosaic needs one more token to connect to Slack in real time.
+        Open your app settings, scroll to <strong>App-Level Tokens</strong>,
+        click <strong>Generate Token</strong>, add the <code style="color:#aaa">connections:write</code> scope, and copy the <code style="color:#aaa">xapp-</code> token.
+      </div>
+      <a class="open-btn" href="${appTokenUrl}" target="_blank">
+        Open Slack app settings ↗
+      </a>
+    </div>
+
+    <div class="step">
+      <div class="step-label">Step 3 — Start Mosaic</div>
       <div class="command">mosaic start</div>
     </div>
 
@@ -123,11 +164,10 @@ function successPage(token, teamName) {
   </div>
 
   <script>
-    function copyCmd() {
-      const text = document.getElementById("cmd-text").textContent;
-      navigator.clipboard.writeText(text);
-      document.querySelector(".copy-btn").textContent = "Copied!";
-      setTimeout(() => document.querySelector(".copy-btn").textContent = "Copy", 2000);
+    function copy(id, btn) {
+      navigator.clipboard.writeText(document.getElementById(id).textContent);
+      btn.textContent = "Copied!";
+      setTimeout(() => btn.textContent = "Copy", 2000);
     }
   </script>
 </body>

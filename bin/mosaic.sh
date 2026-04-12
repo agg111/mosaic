@@ -134,13 +134,18 @@ case "$COMMAND" in
     else
       echo ""
       echo "  Step 4 — Connect Slack"
-      _dim "Authorize Mosaic in your workspace to get a bot token."
+      _dim "Opening the Slack connect page. Authorize Mosaic, then paste the bot token below."
       echo ""
       open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || xdg-open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || true
       echo ""
       printf "  Slack bot token (xoxb-...): "
       stty -echo 2>/dev/null; read -r SLACK_BOT; stty echo 2>/dev/null; echo ""
       [ -z "$SLACK_BOT" ] && _err "Slack bot token is required."
+      echo ""
+      _dim "One more token. In the Slack app settings page that opened, scroll to"
+      _dim "'App-Level Tokens', click Generate Token, add connections:write scope."
+      echo ""
+      open "https://api.slack.com/apps" 2>/dev/null || xdg-open "https://api.slack.com/apps" 2>/dev/null || true
       printf "  Slack app token (xapp-...): "
       stty -echo 2>/dev/null; read -r SLACK_APP; stty echo 2>/dev/null; echo ""
       [ -z "$SLACK_APP" ] && _err "Slack app token is required."
