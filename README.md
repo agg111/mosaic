@@ -5,10 +5,11 @@ Mosaic is an opinionated intelligence agent that reads your team's internal stre
 ## Install
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/agg111/mosaic/main/install.sh | sh
+npm install -g getmosaic
+mosaic configure
 ```
 
-That's it. The installer sets up everything and walks you through connecting your sources.
+`mosaic configure` walks you through everything — installs dependencies, connects your sources, and gets you ready to start.
 
 ## Start
 
@@ -18,12 +19,12 @@ mosaic start
 
 ## Connect your sources
 
-Sign up at [hyperspell.com](https://hyperspell.com) and connect your team's tools:
+During `mosaic configure` you'll connect:
 
-- Slack
-- Gmail
-- Notion / Google Drive
-- HubSpot / Salesforce (coming soon)
+- **Hyperspell** — sign up at [hyperspell.com](https://hyperspell.com), then connect Slack, Notion, Gmail, and Google Drive from their dashboard
+- **Anthropic** — API key from [console.anthropic.com](https://console.anthropic.com)
+- **Slack** — authorize via the connect page that opens automatically
+- **Tavily** — optional web search, free key at [tavily.com](https://tavily.com)
 
 Mosaic searches across all of them automatically.
 
@@ -39,10 +40,10 @@ Mosaic searches across all of them automatically.
 ## Commands
 
 ```sh
+mosaic configure # Set up Mosaic (run this first)
 mosaic start     # Start Mosaic
 mosaic stop      # Stop Mosaic
 mosaic status    # Show connected channels
-mosaic setup     # Re-run setup wizard
 ```
 
 ## Adding new capabilities
