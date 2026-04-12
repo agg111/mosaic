@@ -71,12 +71,10 @@ case "$COMMAND" in
     PLUGIN_PATH="$(npm root -g)/getmosaic"
     EXTENSIONS_DIR="$HOME/.openclaw/extensions"
     mkdir -p "$EXTENSIONS_DIR"
-    if [ -e "$EXTENSIONS_DIR/getmosaic" ]; then
-      _skip "Mosaic plugin"
-    else
-      ln -sf "$PLUGIN_PATH" "$EXTENSIONS_DIR/getmosaic"
-      _ok "Mosaic plugin registered"
-    fi
+    # Always sync — ensures version upgrades propagate
+    rm -rf "$EXTENSIONS_DIR/getmosaic"
+    cp -r "$PLUGIN_PATH" "$EXTENSIONS_DIR/getmosaic"
+    _ok "Mosaic plugin registered"
 
     # ── 4. Config dir ───────────────────────────────────────────────────────────
     mkdir -p "$HOME/.openclaw"
