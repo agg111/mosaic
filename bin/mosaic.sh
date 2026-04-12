@@ -68,11 +68,13 @@ case "$COMMAND" in
     fi
 
     # ── 3. Register plugin ──────────────────────────────────────────────────────
-    if openclaw plugins list 2>/dev/null | grep -q "mosaic"; then
+    PLUGIN_PATH="$(npm root -g)/getmosaic"
+    EXTENSIONS_DIR="$HOME/.openclaw/extensions"
+    mkdir -p "$EXTENSIONS_DIR"
+    if [ -e "$EXTENSIONS_DIR/getmosaic" ]; then
       _skip "Mosaic plugin"
     else
-      PLUGIN_PATH="$(npm root -g)/getmosaic"
-      openclaw plugins install "$PLUGIN_PATH" 2>/dev/null || true
+      ln -sf "$PLUGIN_PATH" "$EXTENSIONS_DIR/getmosaic"
       _ok "Mosaic plugin registered"
     fi
 
@@ -114,6 +116,26 @@ case "$COMMAND" in
       [ -z "$ANT_KEY" ] && _err "Anthropic API key is required."
       echo "ANTHROPIC_API_KEY=$ANT_KEY" >> "$ENV_FILE"
       _ok "Anthropic connected"
+    fi
+
+    # Write openclaw agent auth so it uses Anthropic by default
+    ANT_KEY_VAL="$(grep "^ANTHROPIC_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
+    AGENT_DIR="$HOME/.openclaw/agents/main/agent"
+    mkdir -p "$AGENT_DIR"
+    if [ ! -f "$AGENT_DIR/auth-profiles.json" ]; then
+      cat > "$AGENT_DIR/auth-profiles.json" << EOF
+{
+  "version": 1,
+  "profiles": {
+    "anthropic:default": {
+      "type": "api_key",
+      "provider": "anthropic",
+      "key": "$ANT_KEY_VAL"
+    }
+  }
+}
+EOF
+      _ok "Agent configured to use Anthropic"
     fi
 
     if grep -q "TAVILY_API_KEY" "$ENV_FILE" 2>/dev/null; then
