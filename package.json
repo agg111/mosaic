@@ -1,6 +1,6 @@
 {
   "name": "getmosaic",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Market intelligence agent — distills signals from your team and the market into strategic clarity",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,20 +9,22 @@
     "mosaic": "./bin/mosaic.sh"
   },
   "files": [
-    "dist",
+    "dist/bundle.js",
+    "dist/index.js",
+    "dist/index.d.ts",
     "bin",
     "install.sh",
     "openclaw.plugin.json",
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node_modules/.bin/esbuild index.ts --bundle --platform=node --format=esm --outfile=dist/bundle.js --external:openclaw",
     "dev": "tsc --watch",
-    "prepare": "tsc"
+    "prepare": "tsc && node_modules/.bin/esbuild index.ts --bundle --platform=node --format=esm --outfile=dist/bundle.js --external:openclaw"
   },
   "openclaw": {
     "extensions": [
-      "./dist/index.js"
+      "./dist/bundle.js"
     ]
   },
   "keywords": [
@@ -42,6 +44,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
+    "esbuild": "^0.28.0",
     "typescript": "^5.5.0"
   }
 }

@@ -71,10 +71,10 @@ case "$COMMAND" in
     PLUGIN_PATH="$(npm root -g)/getmosaic"
     EXTENSIONS_DIR="$HOME/.openclaw/extensions"
     mkdir -p "$EXTENSIONS_DIR"
-    # Copy only the files openclaw needs — skip node_modules (1.8GB)
+    # Copy only what openclaw needs — bundle.js has all deps inlined, no node_modules needed
     rm -rf "$EXTENSIONS_DIR/getmosaic"
-    mkdir -p "$EXTENSIONS_DIR/getmosaic"
-    cp -r "$PLUGIN_PATH/dist" "$EXTENSIONS_DIR/getmosaic/dist"
+    mkdir -p "$EXTENSIONS_DIR/getmosaic/dist"
+    cp "$PLUGIN_PATH/dist/bundle.js" "$EXTENSIONS_DIR/getmosaic/dist/bundle.js"
     cp "$PLUGIN_PATH/package.json" "$EXTENSIONS_DIR/getmosaic/package.json"
     cp "$PLUGIN_PATH/openclaw.plugin.json" "$EXTENSIONS_DIR/getmosaic/openclaw.plugin.json"
     _ok "Mosaic plugin registered"
