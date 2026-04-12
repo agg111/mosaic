@@ -105,39 +105,38 @@ case "$COMMAND" in
       _ok "Hyperspell connected"
     fi
 
-    if grep -q "ANTHROPIC_API_KEY" "$ENV_FILE" 2>/dev/null; then
-      _skip "Anthropic"
+    if grep -q "OPENAI_API_KEY" "$ENV_FILE" 2>/dev/null; then
+      _skip "OpenAI"
     else
       echo ""
-      echo "  Step 2 — Anthropic API key"
-      _dim "Get one at https://console.anthropic.com"
+      echo "  Step 2 — OpenAI API key"
+      _dim "Get one at https://platform.openai.com/api-keys"
       echo ""
-      printf "  Anthropic API key (sk-ant-...): "
-      stty -echo 2>/dev/null; read -r ANT_KEY; stty echo 2>/dev/null; echo ""
-      [ -z "$ANT_KEY" ] && _err "Anthropic API key is required."
-      echo "ANTHROPIC_API_KEY=$ANT_KEY" >> "$ENV_FILE"
-      _ok "Anthropic connected"
+      open "https://platform.openai.com/api-keys" 2>/dev/null || xdg-open "https://platform.openai.com/api-keys" 2>/dev/null || true
+      printf "  OpenAI API key (sk-...): "
+      stty -echo 2>/dev/null; read -r OAI_KEY; stty echo 2>/dev/null; echo ""
+      [ -z "$OAI_KEY" ] && _err "OpenAI API key is required."
+      echo "OPENAI_API_KEY=$OAI_KEY" >> "$ENV_FILE"
+      _ok "OpenAI connected"
     fi
 
-    # Write openclaw agent auth so it uses Anthropic by default
-    ANT_KEY_VAL="$(grep "^ANTHROPIC_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
+    # Write openclaw agent auth with OpenAI key
+    OAI_KEY_VAL="$(grep "^OPENAI_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
     AGENT_DIR="$HOME/.openclaw/agents/main/agent"
     mkdir -p "$AGENT_DIR"
-    if [ ! -f "$AGENT_DIR/auth-profiles.json" ]; then
-      cat > "$AGENT_DIR/auth-profiles.json" << EOF
+    cat > "$AGENT_DIR/auth-profiles.json" << EOF
 {
   "version": 1,
   "profiles": {
-    "anthropic:default": {
+    "openai:default": {
       "type": "api_key",
-      "provider": "anthropic",
-      "key": "$ANT_KEY_VAL"
+      "provider": "openai",
+      "key": "$OAI_KEY_VAL"
     }
   }
 }
 EOF
-      _ok "Agent configured to use Anthropic"
-    fi
+    _ok "Agent configured to use OpenAI"
 
     if grep -q "TAVILY_API_KEY" "$ENV_FILE" 2>/dev/null; then
       _skip "Tavily"
@@ -214,7 +213,7 @@ EOF
   },
   "agents": {
     "defaults": {
-      "model": "anthropic/claude-sonnet-4-6"
+      "model": "openai/gpt-4o"
     }
   }
 }
