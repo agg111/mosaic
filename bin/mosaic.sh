@@ -211,6 +211,11 @@ EOF
   },
   "gateway": {
     "mode": "local"
+  },
+  "agents": {
+    "defaults": {
+      "model": "anthropic/claude-sonnet-4-6"
+    }
   }
 }
 EOF
