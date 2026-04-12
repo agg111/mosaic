@@ -71,9 +71,12 @@ case "$COMMAND" in
     PLUGIN_PATH="$(npm root -g)/getmosaic"
     EXTENSIONS_DIR="$HOME/.openclaw/extensions"
     mkdir -p "$EXTENSIONS_DIR"
-    # Always sync — ensures version upgrades propagate
+    # Copy only the files openclaw needs — skip node_modules (1.8GB)
     rm -rf "$EXTENSIONS_DIR/getmosaic"
-    cp -r "$PLUGIN_PATH" "$EXTENSIONS_DIR/getmosaic"
+    mkdir -p "$EXTENSIONS_DIR/getmosaic"
+    cp -r "$PLUGIN_PATH/dist" "$EXTENSIONS_DIR/getmosaic/dist"
+    cp "$PLUGIN_PATH/package.json" "$EXTENSIONS_DIR/getmosaic/package.json"
+    cp "$PLUGIN_PATH/openclaw.plugin.json" "$EXTENSIONS_DIR/getmosaic/openclaw.plugin.json"
     _ok "Mosaic plugin registered"
 
     # ── 4. Config dir ───────────────────────────────────────────────────────────
@@ -169,19 +172,22 @@ EOF
       _ok "Slack connected"
     fi
 
-    # ── 7. openclaw.json ─────────────────────────────────────────────────────────
+    # ── 7. openclaw.json — write actual values, not placeholders ─────────────────
     CONFIG_FILE="$HOME/.openclaw/openclaw.json"
-    if [ -f "$CONFIG_FILE" ]; then
-      _skip "OpenClaw config"
-    else
-      cat > "$CONFIG_FILE" << 'EOF'
+    HS_KEY_VAL="$(grep "^HYPERSPELL_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
+    HS_USER_VAL="$(grep "^HYPERSPELL_USER_ID=" "$ENV_FILE" | cut -d= -f2-)"
+    ANT_KEY_VAL="$(grep "^ANTHROPIC_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
+    TAV_KEY_VAL="$(grep "^TAVILY_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
+    SLACK_BOT_VAL="$(grep "^SLACK_BOT_TOKEN=" "$ENV_FILE" | cut -d= -f2-)"
+    SLACK_APP_VAL="$(grep "^SLACK_APP_TOKEN=" "$ENV_FILE" | cut -d= -f2-)"
+    cat > "$CONFIG_FILE" << EOF
 {
   "channels": {
     "slack": {
       "mode": "socket",
       "enabled": true,
-      "botToken": "${SLACK_BOT_TOKEN}",
-      "appToken": "${SLACK_APP_TOKEN}",
+      "botToken": "$SLACK_BOT_VAL",
+      "appToken": "$SLACK_APP_VAL",
       "groupPolicy": "open",
       "dmPolicy": "open",
       "allowFrom": ["*"],
@@ -195,10 +201,10 @@ EOF
       "mosaic": {
         "enabled": true,
         "config": {
-          "hyperspellApiKey": "${HYPERSPELL_API_KEY}",
-          "hyperspellUserId": "${HYPERSPELL_USER_ID}",
-          "anthropicApiKey": "${ANTHROPIC_API_KEY}",
-          "tavilyApiKey": "${TAVILY_API_KEY}"
+          "hyperspellApiKey": "$HS_KEY_VAL",
+          "hyperspellUserId": "$HS_USER_VAL",
+          "anthropicApiKey": "$ANT_KEY_VAL",
+          "tavilyApiKey": "$TAV_KEY_VAL"
         }
       }
     }
@@ -208,9 +214,7 @@ EOF
   }
 }
 EOF
-      openclaw config set gateway.mode local >/dev/null 2>&1 || true
-      _ok "Config written"
-    fi
+    _ok "Config written"
 
     # ── 8. Done ──────────────────────────────────────────────────────────────────
     echo ""
