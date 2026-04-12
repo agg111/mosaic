@@ -92,7 +92,7 @@ case "$COMMAND" in
       open "https://app.hyperspell.com/api-keys" 2>/dev/null || xdg-open "https://app.hyperspell.com/api-keys" 2>/dev/null || true
       echo ""
       printf "  Hyperspell API key: "
-      read -r HS_KEY
+      stty -echo 2>/dev/null; read -r HS_KEY; stty echo 2>/dev/null; echo ""
       [ -z "$HS_KEY" ] && _err "Hyperspell API key is required."
       printf "  Your email (Hyperspell user ID): "
       read -r HS_USER
@@ -110,7 +110,7 @@ case "$COMMAND" in
       _dim "Get one at https://console.anthropic.com"
       echo ""
       printf "  Anthropic API key (sk-ant-...): "
-      read -r ANT_KEY
+      stty -echo 2>/dev/null; read -r ANT_KEY; stty echo 2>/dev/null; echo ""
       [ -z "$ANT_KEY" ] && _err "Anthropic API key is required."
       echo "ANTHROPIC_API_KEY=$ANT_KEY" >> "$ENV_FILE"
       _ok "Anthropic connected"
@@ -124,7 +124,7 @@ case "$COMMAND" in
       _dim "Get a free key at https://tavily.com"
       echo ""
       printf "  Tavily API key (press enter to skip): "
-      read -r TAV_KEY
+      stty -echo 2>/dev/null; read -r TAV_KEY; stty echo 2>/dev/null; echo ""
       [ -n "$TAV_KEY" ] && echo "TAVILY_API_KEY=$TAV_KEY" >> "$ENV_FILE" && _ok "Tavily connected"
     fi
 
@@ -139,10 +139,10 @@ case "$COMMAND" in
       open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || xdg-open "https://connect-agg111s-projects.vercel.app" 2>/dev/null || true
       echo ""
       printf "  Slack bot token (xoxb-...): "
-      read -r SLACK_BOT
+      stty -echo 2>/dev/null; read -r SLACK_BOT; stty echo 2>/dev/null; echo ""
       [ -z "$SLACK_BOT" ] && _err "Slack bot token is required."
       printf "  Slack app token (xapp-...): "
-      read -r SLACK_APP
+      stty -echo 2>/dev/null; read -r SLACK_APP; stty echo 2>/dev/null; echo ""
       [ -z "$SLACK_APP" ] && _err "Slack app token is required."
       echo "SLACK_BOT_TOKEN=$SLACK_BOT" >> "$ENV_FILE"
       echo "SLACK_APP_TOKEN=$SLACK_APP" >> "$ENV_FILE"
