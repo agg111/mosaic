@@ -29,7 +29,7 @@ case "$COMMAND" in
       exit 1
     fi
     echo "Starting Mosaic..."
-    openclaw gateway run
+    openclaw gateway
     ;;
 
   stop)
@@ -69,14 +69,10 @@ case "$COMMAND" in
 
     # ── 3. Register plugin ──────────────────────────────────────────────────────
     PLUGIN_PATH="$(npm root -g)/getmosaic"
-    EXTENSIONS_DIR="$HOME/.openclaw/extensions"
-    mkdir -p "$EXTENSIONS_DIR"
-    # Copy only what openclaw needs — bundle.js has all deps inlined, no node_modules needed
-    rm -rf "$EXTENSIONS_DIR/getmosaic"
-    mkdir -p "$EXTENSIONS_DIR/getmosaic/dist"
-    cp "$PLUGIN_PATH/dist/bundle.js" "$EXTENSIONS_DIR/getmosaic/dist/bundle.js"
-    cp "$PLUGIN_PATH/package.json" "$EXTENSIONS_DIR/getmosaic/package.json"
-    cp "$PLUGIN_PATH/openclaw.plugin.json" "$EXTENSIONS_DIR/getmosaic/openclaw.plugin.json"
+    # Clean up old manual extension copy if present
+    rm -rf "$HOME/.openclaw/extensions/getmosaic" 2>/dev/null || true
+    openclaw plugins install --force "$PLUGIN_PATH" 2>&1 | grep -v "^$" | sed 's/^/  /' || true
+    openclaw plugins registry --refresh 2>&1 | tail -1 | sed 's/^/  /' || true
     _ok "Mosaic plugin registered"
 
     # ── 4. Config dir ───────────────────────────────────────────────────────────
@@ -190,8 +186,7 @@ EOF
       "groupPolicy": "open",
       "dmPolicy": "open",
       "allowFrom": ["*"],
-      "nativeStreaming": true,
-      "streaming": "partial"
+      "streaming": { "mode": "partial", "nativeTransport": true }
     }
   },
   "plugins": {
