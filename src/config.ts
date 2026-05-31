@@ -4,6 +4,7 @@ export interface MosaicConfig {
   tavilyApiKey?: string;
   anthropicApiKey?: string;
   slackAppToken?: string;
+  slackBotToken?: string;
 }
 
 let _config: MosaicConfig | null = null;

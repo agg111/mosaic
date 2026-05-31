@@ -1,7 +1,7 @@
 {
   "name": "getmosaic",
-  "version": "0.1.25",
-  "description": "Market intelligence agent — distills signals from your team and the market into strategic clarity",
+  "version": "0.1.38",
+  "description": "Less noise, more signal — market intelligence for your team",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
@@ -36,11 +36,12 @@
   ],
   "dependencies": {
     "@anthropic-ai/sdk": "^0.80.0",
+    "@hyperspell/hyperspell": "^0.38.0",
     "@sinclair/typebox": "^0.34.0",
-    "hyperspell": "^0.35.0"
+    "openclaw": "2026.5.7"
   },
   "peerDependencies": {
-    "openclaw": "*"
+    "openclaw": "^2026.5.7"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

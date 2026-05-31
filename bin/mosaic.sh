@@ -28,6 +28,15 @@ case "$COMMAND" in
       echo ""
       exit 1
     fi
+    # Auto-update plugin if npm version is newer than installed version
+    PLUGIN_PATH="$(npm root -g)/getmosaic"
+    NPM_VERSION="$(node -e "try{console.log(require('$PLUGIN_PATH/package.json').version)}catch(e){console.log('0')}")"
+    INSTALLED_VERSION="$(node -e "try{console.log(require(process.env.HOME+'/.openclaw/extensions/mosaic/package.json').version)}catch(e){console.log('0')}")"
+    if [ "$NPM_VERSION" != "$INSTALLED_VERSION" ] && [ "$NPM_VERSION" != "0" ]; then
+      echo "Updating Mosaic plugin ($INSTALLED_VERSION → $NPM_VERSION)..."
+      openclaw plugins install --force "$PLUGIN_PATH" 2>&1 | grep -v "^$" | sed 's/^/  /' || true
+      openclaw plugins registry --refresh 2>&1 | tail -1 | sed 's/^/  /' || true
+    fi
     echo "Starting Mosaic..."
     openclaw gateway
     ;;
@@ -186,7 +195,16 @@ EOF
       "groupPolicy": "open",
       "dmPolicy": "open",
       "allowFrom": ["*"],
-      "streaming": { "mode": "partial", "nativeTransport": true }
+      "streaming": {
+        "mode": "progress",
+        "progress": {
+          "label": "Mosaic is working...",
+          "toolProgress": false
+        },
+        "preview": {
+          "toolProgress": false
+        }
+      }
     }
   },
   "plugins": {
@@ -206,6 +224,11 @@ EOF
   "gateway": {
     "mode": "local"
   },
+  "messages": {
+    "groupChat": {
+      "visibleReplies": "automatic"
+    }
+  },
   "agents": {
     "defaults": {
       "model": "openai/gpt-4o"
@@ -215,7 +238,45 @@ EOF
 EOF
     _ok "Config written"
 
-    # ── 8. Done ──────────────────────────────────────────────────────────────────
+    # ── 8. Inject Mosaic instructions into workspace TOOLS.md ───────────────────
+    TOOLS_FILE="$HOME/.openclaw/workspace/TOOLS.md"
+    if [ -f "$TOOLS_FILE" ] && ! grep -q "mosaic_search_memories" "$TOOLS_FILE" 2>/dev/null; then
+      cat >> "$TOOLS_FILE" << 'MOSAIC_SECTION'
+
+## Mosaic — Internal Knowledge
+
+You have `mosaic_search_memories` connected to this team's Slack channels and Notion docs.
+
+**ALWAYS call `mosaic_search_memories` FIRST** when anyone asks about:
+- What's happening in a channel (sales, cs, product, marketing, etc.)
+- Team activity, decisions, or updates
+- Internal docs, notes, or knowledge
+
+Never say you lack access or permissions — you have direct access via the tool. Call it immediately, then answer from the results. Do not ask clarifying questions before searching.
+
+Treat Slack threads as ongoing conversations. For follow-up questions, infer the user's intent from the full thread history, especially the immediately preceding user question, Mosaic answer, and retrieved evidence. Carry forward the active business topic, entities, and channel/source being discussed when choosing the next search query.
+
+Do not interpret ambiguous follow-ups as being about the current Slack channel just because the message was sent there. Prefer the thread's active topic over the container channel name.
+
+MOSAIC_SECTION
+      _ok "Workspace instructions updated"
+    else
+      _skip "Workspace instructions"
+    fi
+
+    if [ -f "$TOOLS_FILE" ] && ! grep -q "Treat Slack threads as ongoing conversations" "$TOOLS_FILE" 2>/dev/null; then
+      cat >> "$TOOLS_FILE" << 'MOSAIC_FOLLOWUP_SECTION'
+
+## Mosaic — Follow-Up Context
+
+Treat Slack threads as ongoing conversations. For follow-up questions, infer the user's intent from the full thread history, especially the immediately preceding user question, Mosaic answer, and retrieved evidence. Carry forward the active business topic, entities, and channel/source being discussed when choosing the next search query.
+
+Do not interpret ambiguous follow-ups as being about the current Slack channel just because the message was sent there. Prefer the thread's active topic over the container channel name.
+MOSAIC_FOLLOWUP_SECTION
+      _ok "Follow-up context instructions updated"
+    fi
+
+    # ── 9. Done ──────────────────────────────────────────────────────────────────
     echo ""
     echo "  ┌─────────────────────────────────────┐"
     echo "  │        Mosaic is ready!             │"
@@ -236,6 +297,27 @@ EOF
     echo "✓ Slack token saved. Run: mosaic stop && mosaic start"
     ;;
 
+  set-hyperspell-key)
+    HS_KEY="${2:-}"
+    [ -z "$HS_KEY" ] && echo "Usage: mosaic set-hyperspell-key <hs-...>" && exit 1
+    ENV_FILE="$HOME/.openclaw/.env"
+    grep -v "^HYPERSPELL_API_KEY=" "$ENV_FILE" > "$ENV_FILE.tmp" && mv "$ENV_FILE.tmp" "$ENV_FILE"
+    echo "HYPERSPELL_API_KEY=$HS_KEY" >> "$ENV_FILE"
+    # Update openclaw.json too
+    CONFIG_FILE="$HOME/.openclaw/openclaw.json"
+    if [ -f "$CONFIG_FILE" ]; then
+      node -e "
+        const fs = require('fs');
+        const cfg = JSON.parse(fs.readFileSync('$CONFIG_FILE','utf8'));
+        if (cfg.plugins?.entries?.mosaic?.config) {
+          cfg.plugins.entries.mosaic.config.hyperspellApiKey = '$HS_KEY';
+          fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
+        }
+      " 2>/dev/null && echo "✓ Config updated"
+    fi
+    echo "✓ Hyperspell key saved. Run: mosaic stop && mosaic start"
+    ;;
+
   plugins)
     openclaw plugins list
     ;;
@@ -247,11 +329,13 @@ EOF
     echo "  Usage: mosaic <command>"
     echo ""
     echo "  Commands:"
-    echo "    configure   Set up Mosaic (run this first)"
-    echo "    start       Start Mosaic"
-    echo "    stop        Stop Mosaic"
-    echo "    status      Show connected channels and status"
-    echo "    plugins     List installed plugins"
+    echo "    configure          Set up Mosaic (run this first)"
+    echo "    start              Start Mosaic"
+    echo "    stop               Stop Mosaic"
+    echo "    status             Show connected channels and status"
+    echo "    plugins            List installed plugins"
+    echo "    set-hyperspell-key Update your Hyperspell API key"
+    echo "    set-slack-token    Update your Slack bot token"
     echo ""
     ;;
 esac

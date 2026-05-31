@@ -1,4 +1,4 @@
-import Hyperspell from "hyperspell";
+import Hyperspell from "@hyperspell/hyperspell";
 import { getConfig } from "./config.js";
 
 export function getClient(): Hyperspell {
