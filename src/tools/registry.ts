@@ -9,7 +9,6 @@
 import { searchMemoriesTool } from "./search-memories.js";
 import { webSearchTool } from "./web-search.js";
 import { rememberInsightTool } from "./remember-insight.js";
-import { generateReportTool } from "./generate-report.js";
 
 export const MOSAIC_TOOLS = [
   // Memory & knowledge
@@ -18,7 +17,4 @@ export const MOSAIC_TOOLS = [
 
   // Web research
   webSearchTool,
-
-  // Orchestrated workflows
-  generateReportTool,
 ];

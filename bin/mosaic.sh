@@ -16,6 +16,7 @@ _ok()   { printf "\033[32m✓\033[0m %s\n" "$1"; }
 _skip() { printf "\033[2m– %s (already done)\033[0m\n" "$1"; }
 _err()  { printf "\033[31m✗\033[0m %s\n" "$1"; exit 1; }
 _dim()  { printf "\033[2m  %s\033[0m\n" "$1"; }
+_secure_file() { [ -f "$1" ] && chmod 600 "$1" 2>/dev/null || true; }
 
 case "$COMMAND" in
   start)
@@ -88,6 +89,7 @@ case "$COMMAND" in
     mkdir -p "$HOME/.openclaw"
     ENV_FILE="$HOME/.openclaw/.env"
     touch "$ENV_FILE"
+    _secure_file "$ENV_FILE"
 
     # ── 5. API keys ─────────────────────────────────────────────────────────────
     if grep -q "HYPERSPELL_API_KEY" "$ENV_FILE" 2>/dev/null; then
@@ -141,6 +143,7 @@ case "$COMMAND" in
   }
 }
 EOF
+    _secure_file "$AGENT_DIR/auth-profiles.json"
     _ok "Agent configured to use OpenAI"
 
     if grep -q "TAVILY_API_KEY" "$ENV_FILE" 2>/dev/null; then
@@ -180,7 +183,6 @@ EOF
     CONFIG_FILE="$HOME/.openclaw/openclaw.json"
     HS_KEY_VAL="$(grep "^HYPERSPELL_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
     HS_USER_VAL="$(grep "^HYPERSPELL_USER_ID=" "$ENV_FILE" | cut -d= -f2-)"
-    ANT_KEY_VAL="$(grep "^ANTHROPIC_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
     TAV_KEY_VAL="$(grep "^TAVILY_API_KEY=" "$ENV_FILE" | cut -d= -f2-)"
     SLACK_BOT_VAL="$(grep "^SLACK_BOT_TOKEN=" "$ENV_FILE" | cut -d= -f2-)"
     SLACK_APP_VAL="$(grep "^SLACK_APP_TOKEN=" "$ENV_FILE" | cut -d= -f2-)"
@@ -212,7 +214,6 @@ EOF
         "config": {
           "hyperspellApiKey": "$HS_KEY_VAL",
           "hyperspellUserId": "$HS_USER_VAL",
-          "anthropicApiKey": "$ANT_KEY_VAL",
           "tavilyApiKey": "$TAV_KEY_VAL"
         }
       }
@@ -233,6 +234,7 @@ EOF
   }
 }
 EOF
+    _secure_file "$CONFIG_FILE"
     _ok "Config written"
 
     # ── 8. Inject Mosaic instructions into workspace TOOLS.md ───────────────────
@@ -293,6 +295,7 @@ MOSAIC_FOLLOWUP_SECTION
     ENV_FILE="$HOME/.openclaw/.env"
     grep -v "^SLACK_BOT_TOKEN=" "$ENV_FILE" > "$ENV_FILE.tmp" && mv "$ENV_FILE.tmp" "$ENV_FILE"
     echo "SLACK_BOT_TOKEN=$BOT_TOKEN" >> "$ENV_FILE"
+    _secure_file "$ENV_FILE"
     echo "✓ Slack token saved. Run: mosaic stop && mosaic start"
     ;;
 
@@ -302,6 +305,7 @@ MOSAIC_FOLLOWUP_SECTION
     ENV_FILE="$HOME/.openclaw/.env"
     grep -v "^HYPERSPELL_API_KEY=" "$ENV_FILE" > "$ENV_FILE.tmp" && mv "$ENV_FILE.tmp" "$ENV_FILE"
     echo "HYPERSPELL_API_KEY=$HS_KEY" >> "$ENV_FILE"
+    _secure_file "$ENV_FILE"
     # Update openclaw.json too
     CONFIG_FILE="$HOME/.openclaw/openclaw.json"
     if [ -f "$CONFIG_FILE" ]; then
@@ -313,6 +317,7 @@ MOSAIC_FOLLOWUP_SECTION
           fs.writeFileSync('$CONFIG_FILE', JSON.stringify(cfg, null, 2));
         }
       " 2>/dev/null && echo "✓ Config updated"
+      _secure_file "$CONFIG_FILE"
     fi
     echo "✓ Hyperspell key saved. Run: mosaic stop && mosaic start"
     ;;

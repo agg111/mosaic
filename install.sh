@@ -82,11 +82,11 @@ else
   [ -z "$HYPERSPELL_USER_ID" ] && err "Hyperspell User ID is required."
 
   echo ""
-  dim "  Anthropic API key — https://console.anthropic.com"
+  dim "  OpenAI API key — https://platform.openai.com/api-keys"
   echo ""
-  printf "  Anthropic API Key: "
-  read -r ANTHROPIC_API_KEY
-  [ -z "$ANTHROPIC_API_KEY" ] && err "Anthropic API key is required."
+  printf "  OpenAI API Key: "
+  read -r OPENAI_API_KEY
+  [ -z "$OPENAI_API_KEY" ] && err "OpenAI API key is required."
 
   echo ""
   dim "  (Optional) Tavily for web search — https://tavily.com"
@@ -97,7 +97,7 @@ else
   cat > "$ENV_FILE" << EOF
 HYPERSPELL_API_KEY=$HYPERSPELL_API_KEY
 HYPERSPELL_USER_ID=$HYPERSPELL_USER_ID
-ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+OPENAI_API_KEY=$OPENAI_API_KEY
 EOF
   [ -n "$TAVILY_API_KEY" ] && echo "TAVILY_API_KEY=$TAVILY_API_KEY" >> "$ENV_FILE"
   success "API keys saved"
@@ -160,7 +160,6 @@ else
         "config": {
           "hyperspellApiKey": "${HYPERSPELL_API_KEY}",
           "hyperspellUserId": "${HYPERSPELL_USER_ID}",
-          "anthropicApiKey": "${ANTHROPIC_API_KEY}",
           "tavilyApiKey": "${TAVILY_API_KEY}"
         }
       }

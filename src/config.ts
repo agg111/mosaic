@@ -2,7 +2,6 @@ export interface MosaicConfig {
   hyperspellApiKey: string;
   hyperspellUserId: string;
   tavilyApiKey?: string;
-  anthropicApiKey?: string;
   slackAppToken?: string;
   slackBotToken?: string;
 }

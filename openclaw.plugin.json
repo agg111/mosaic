@@ -7,7 +7,7 @@
     "onStartup": true
   },
   "contracts": {
-    "tools": ["mosaic_search_memories", "mosaic_web_search", "mosaic_remember_insight", "mosaic_generate_report"]
+    "tools": ["mosaic_search_memories", "mosaic_web_search", "mosaic_remember_insight"]
   },
   "configSchema": {
     "type": "object",
@@ -24,10 +24,6 @@
       "tavilyApiKey": {
         "type": "string",
         "description": "Tavily API key for web search (optional — disables web search if omitted)"
-      },
-      "anthropicApiKey": {
-        "type": "string",
-        "description": "Anthropic API key for report generation (falls back to ANTHROPIC_API_KEY env var)"
       }
     }
   },
@@ -45,11 +41,6 @@
       "label": "Tavily API Key (web search)",
       "sensitive": true,
       "placeholder": "tvly-..."
-    },
-    "anthropicApiKey": {
-      "label": "Anthropic API Key",
-      "sensitive": true,
-      "placeholder": "sk-ant-..."
     }
   }
 }

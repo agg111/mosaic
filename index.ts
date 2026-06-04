@@ -104,8 +104,6 @@ const plugin = {
         configValues.hyperspellUserId ?? process.env.HYPERSPELL_USER_ID ?? "",
       tavilyApiKey:
         configValues.tavilyApiKey ?? process.env.TAVILY_API_KEY,
-      anthropicApiKey:
-        configValues.anthropicApiKey ?? process.env.ANTHROPIC_API_KEY,
       slackBotToken:
         configValues.slackBotToken ?? process.env.SLACK_BOT_TOKEN,
     });

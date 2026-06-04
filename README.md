@@ -1,6 +1,16 @@
 # Mosaic
 
-Mosaic is an opinionated intelligence agent that reads your team's internal streams — Slack, email, docs, CRM — scans market trends, and delivers sharp insights to drive product decisions and strategy.
+Mosaic cuts through team and market noise so you can focus on what matters. It connects to your Slack, Notion, Gmail, Drive, and market data, then answers strategy and operating questions from the context your team already has.
+
+## Requirements
+
+- macOS or Linux terminal
+- Node.js 20+
+- npm
+- [OpenAI](https://platform.openai.com/api-keys) API key
+- [Hyperspell](https://hyperspell.com) account and API key
+- Slack workspace where you can authorize Mosaic
+- Data sources connected in Hyperspell, such as Slack, Notion, Gmail, or Google Drive
 
 ## Install
 
@@ -9,7 +19,14 @@ npm install -g getmosaic
 mosaic configure
 ```
 
-`mosaic configure` walks you through everything — installs dependencies, connects your sources, and gets you ready to start.
+`mosaic configure` walks you through setup:
+
+- installs and configures OpenClaw
+- registers the Mosaic plugin
+- saves your Hyperspell API key
+- saves your OpenAI API key
+- optionally saves your Tavily API key for web search
+- opens the Mosaic Slack connect page so you can authorize Slack
 
 ## Start
 
@@ -17,12 +34,20 @@ mosaic configure
 mosaic start
 ```
 
+Then mention Mosaic in Slack:
+
+```text
+@Mosaic what’s happening in sales?
+@Mosaic summarize recent customer feedback
+@Mosaic what should we do better?
+```
+
 ## Connect your sources
 
 During `mosaic configure` you'll connect:
 
 - **Hyperspell** — sign up at [hyperspell.com](https://hyperspell.com), then connect Slack, Notion, Gmail, and Google Drive from their dashboard
-- **Anthropic** — API key from [console.anthropic.com](https://console.anthropic.com)
+- **OpenAI** — API key from [platform.openai.com/api-keys](https://platform.openai.com/api-keys)
 - **Slack** — authorize via the connect page that opens automatically
 - **Tavily** — optional web search, free key at [tavily.com](https://tavily.com)
 
@@ -46,6 +71,26 @@ mosaic stop      # Stop Mosaic
 mosaic status    # Show connected channels
 ```
 
+## Update
+
+```sh
+npm install -g getmosaic@latest
+mosaic start
+```
+
+`mosaic start` syncs the installed OpenClaw plugin when the npm package has changed.
+
+## Reinstall from scratch
+
+```sh
+mosaic stop
+npm uninstall -g getmosaic
+rm -rf ~/.openclaw/extensions/mosaic
+npm install -g getmosaic
+mosaic configure
+mosaic start
+```
+
 ## Adding new capabilities
 
 To add a new tool:
@@ -55,9 +100,3 @@ To add a new tool:
 3. Rebuild: `npm run build`
 
 No other changes needed.
-
-## Requirements
-
-- Node.js 20+
-- [Hyperspell](https://hyperspell.com) account
-- [Anthropic](https://console.anthropic.com) API key
