@@ -1,6 +1,6 @@
 {
   "name": "getmosaic",
-  "version": "0.1.38",
+  "version": "0.1.39",
   "description": "Less noise, more signal — market intelligence for your team",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

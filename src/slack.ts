@@ -10,6 +10,9 @@ interface SlackMessage {
   text: string;
   user?: string;
   username?: string;
+  bot_id?: string;
+  app_id?: string;
+  subtype?: string;
   ts: string;
 }
 
@@ -46,6 +49,15 @@ export async function getChannelHistory(channelId: string, limit = 50): Promise<
   return (data.messages ?? []) as SlackMessage[];
 }
 
+export async function getThreadReplies(channelId: string, threadTs: string, limit = 20): Promise<SlackMessage[]> {
+  const data = await slackGet("conversations.replies", {
+    channel: channelId,
+    ts: threadTs,
+    limit: String(limit),
+  });
+  return (data.messages ?? []) as SlackMessage[];
+}
+
 export async function getUserName(userId: string): Promise<string> {
   try {
     const data = await slackGet("users.info", { user: userId });
@@ -68,10 +80,8 @@ export function matchChannels(channels: SlackChannel[], query: string): SlackCha
   return matched.length > 0 ? matched.slice(0, 3).map((x) => x.channel) : channels.slice(0, 3);
 }
 
-export function formatMessages(messages: SlackMessage[]): string {
+function formatMessageLines(messages: SlackMessage[]): string {
   return messages
-    .slice()
-    .reverse()
     .map((m) => {
       const ts = new Date(Number(m.ts.split(".")[0]) * 1000).toISOString().slice(0, 16).replace("T", " ");
       const who = m.username ?? m.user ?? "unknown";
@@ -80,4 +90,12 @@ export function formatMessages(messages: SlackMessage[]): string {
     })
     .filter(Boolean)
     .join("\n");
+}
+
+export function formatMessages(messages: SlackMessage[]): string {
+  return formatMessageLines(messages.slice().reverse());
+}
+
+export function formatThreadMessages(messages: SlackMessage[]): string {
+  return formatMessageLines(messages.slice());
 }

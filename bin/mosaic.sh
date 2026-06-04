@@ -196,11 +196,8 @@ EOF
       "dmPolicy": "open",
       "allowFrom": ["*"],
       "streaming": {
-        "mode": "progress",
-        "progress": {
-          "label": "Mosaic is working...",
-          "toolProgress": false
-        },
+        "mode": "partial",
+        "nativeTransport": true,
         "preview": {
           "toolProgress": false
         }
@@ -253,6 +250,8 @@ You have `mosaic_search_memories` connected to this team's Slack channels and No
 - Internal docs, notes, or knowledge
 
 Never say you lack access or permissions — you have direct access via the tool. Call it immediately, then answer from the results. Do not ask clarifying questions before searching.
+
+When calling `mosaic_search_memories` from Slack, pass `channelId` from `NativeChannelId` or chat metadata and pass `threadTs` from `ReplyToId`, `topic_id`, or message thread metadata when available.
 
 Treat Slack threads as ongoing conversations. For follow-up questions, infer the user's intent from the full thread history, especially the immediately preceding user question, Mosaic answer, and retrieved evidence. Carry forward the active business topic, entities, and channel/source being discussed when choosing the next search query.
 
